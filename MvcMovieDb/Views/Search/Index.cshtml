@@ -1,0 +1,101 @@
+﻿@{
+    var keyword = Request.QueryString["keyword"];
+    var searchOption = Request.QueryString["option"];
+    
+    string apiKey = System.Configuration.ConfigurationManager.AppSettings["ApiKey"];
+    string apiUrl = System.Configuration.ConfigurationManager.AppSettings["ApiUrl"];
+
+    ViewBag.Title = "Search for: " + keyword;
+}
+<h2>Search</h2>
+
+<script type="text/javascript">
+    var searchKeyword = "@Request.QueryString["searchKeyword"]";
+    var searchOption = "@Request.QueryString["searchOption"]";
+
+    function searchMovie() {
+        var pageUrl = "@apiUrl" + "search/" + searchOption + "?query=" + searchKeyword + "&api_key=@apiKey";
+        console.log(pageUrl);
+        $.ajax({
+            type: "GET",
+            url: pageUrl,
+            async: true,
+            dataType: "json",
+            success: function (data) {
+
+                var movieList = "";
+                var movieRows = "";
+
+                $("#lblResult").html("Result(s) : " + data.total_results);
+
+                for (var i = 0; i < data.results.length ; i++) {
+                    var url = "@Url.Content("~/Movie/Details/")" + data.results[i].id;
+                    var media_type = (searchOption == "multi") ? data.results[i].media_type : searchOption;
+                    var imgUrl = "http://image.tmdb.org/t/p/w45";
+                    var name = "";
+                    var date = "";
+
+                    switch (media_type) {
+                        case "person":
+                            imgUrl += data.results[i].profile_path;
+                            name = data.results[i].name;
+                            url = "@Url.Content("~/Actor/Details/")" + data.results[i].id;
+                            
+                            url += "?name=" + name.replace(/\ /g, "_");
+                            break;
+
+                        case "movie":
+                            imgUrl += data.results[i].poster_path;
+                            name = data.results[i].original_title;
+                            date = data.results[i].release_date;
+                            url = "@Url.Content("~/Movie/Details/")" + data.results[i].id;
+
+                           // var movieTitle = name.replace(" ", "_");
+
+                            url += "?title=" + name.replace(/\ /g, "_");
+                            break;
+
+                        case "tv":
+                            imgUrl += data.results[i].poster_path;
+                            name = data.results[i].original_name;
+                            date = data.results[i].first_air_date;
+                            url = "@Url.Content("~/Tv/Details/")" + data.results[i].id;
+
+                           // var movieTitle = name.replace(" ", "_");
+                        
+                            url += "?title=" + name.replace(/\ /g, "_");
+                            break;
+
+                    }
+                    // movieList += "<a href=\"" + url + "\">" + data.results[i].original_title + data.results[i].release_date + "</a>";
+
+                    movieRows += "<tr><td><img src=\"" + imgUrl + "\" />";
+                    movieRows += "</td><td class=\"movie-row-title\">";
+                    movieRows += "<a href=\"" + url + "\">" + name + "</a>";
+                    movieRows += "(" + media_type + ") " + date + "</td></tr>";
+
+                }
+
+
+                var movieTable = "<table class=\"movie-table\">" + movieRows + "</table>";
+
+                //$("#divMovieList").html(movieList);
+                $("#divSearchResult").append(movieTable);
+
+            },
+            error: function (data) {
+
+                alert(data.responseText);
+            }
+        });
+    }
+
+    $(document).ready(function () {
+
+        searchMovie();
+    });
+</script>
+
+
+<label id="lblResult"></label>
+<div id="divSearchResult" style="float: left">Movie List</div>

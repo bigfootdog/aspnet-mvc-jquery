@@ -1,0 +1,6 @@
+
+
+
+Master 06/13/2015
+	Added Movie upcoming page
+	Added Now playing page

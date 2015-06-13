@@ -1,0 +1,110 @@
+﻿@{
+    string apiKey = System.Configuration.ConfigurationManager.AppSettings["ApiKey"];
+    string apiUrl = System.Configuration.ConfigurationManager.AppSettings["ApiUrl"];
+    
+    string title = MvcMovieDb.Classes.Utility.UrlParamterToString(Request.QueryString["title"]);
+    ViewBag.Title = title;
+}
+
+<script type="text/javascript">
+    var movieId = "@ViewBag.Id";
+
+    function searchMovie() {       
+        var pageUrl = "@apiUrl" + "movie/" + movieId + "?api_key=@apiKey";
+
+        $.ajax({
+            type: "GET",
+            url: pageUrl,
+            async: true,
+            dataType: "json",
+            success: function (data) {
+                //alert(data.title);
+
+                $(".section-summary-right").append("Title : " + data.title + "<br />");
+                $(".section-summary-right").append("Status : " + data.status + "<br />");
+                $(".section-summary-right").append("tagline : " + data.tagline + "<br />");
+                $(".section-summary-right").append("vote_average : " + data.vote_average + "<br />");
+                $(".section-summary-right").append("vote_count : " + data.vote_count + "<br />");
+                
+                var genre = "";
+                for (var i = 0; i < data.genres.length; i++) {
+                    genre += data.genres[i].name + " ";
+                }
+
+                $(".section-summary-right").append("Genre : " + genre + "<br />");
+                
+                var production_companies = "";
+                for (var i = 0; i < data.production_companies.length; i++) {
+                    production_companies += data.production_companies[i].name + " ";
+                }
+
+                $(".section-summary-right").append("production_companies : " + production_companies + "<br />");
+                $(".section-summary-left").append("<img src=\"http://image.tmdb.org/t/p/w185" + data.poster_path + "\"  alt=\"\"  /><br />");
+
+            },
+            error: function (data) {
+
+                alert(data.responseText);
+            }
+        });
+    }
+
+    function getCredits() {
+        var pageUrl = "@apiUrl" + "movie/" + movieId + "/credits?api_key=@apiKey";
+        //alert(pageUrl);
+        $.ajax({
+            type: "GET",
+            url: pageUrl,
+            async: true,
+            dataType: "json",
+            success: function (data) {
+                                
+                var cast = "";
+                var castRows = "";
+
+                for (var i = 0; i < data.cast.length; i++) {
+                    var url = "@Url.Content("~/Home/Actor/")" + data.cast[i].id;
+
+                    var actorName = data.cast[i].name.replace(/\ /g, "_");
+
+                    url += "?name=" + actorName;
+
+                    castRows += "<tr><td class=\"cast-row-poster\"><img src=\"http://image.tmdb.org/t/p/w45" + data.cast[i].profile_path + "\"  />";
+                    castRows += "</td><td class=\"cast-row-character\">";
+                    castRows += "<a href=\"" + url + "\">" + data.cast[i].name + "</a> <br /> as " + data.cast[i].character;
+                    castRows += "</td></tr>";
+
+                }
+
+                var castTable = "<table class=\"cast-table\">" + castRows + "</table>";
+                $("#divDetails").append(castTable);
+
+           
+            },
+            error: function (data) {
+
+                alert(data.responseText);
+            }
+        });
+    }
+
+    $(document).ready(function () {
+
+            searchMovie();
+            getCredits();
+   
+    });
+
+</script>
+
+
+<div style="width:600px;">
+    <div class="section-summary-title" ><h2>@title</h2></div>
+    <div class="section-summary-left" ></div>
+    <div class="section-summary-right" ></div>
+    <hr style="width:100%;float:left;" />
+    <div id="divDetails" style="width:100%; float:left;">Cast</div>
+</div>
+<br />
+
+

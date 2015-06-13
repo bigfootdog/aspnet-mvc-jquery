@@ -1,0 +1,153 @@
+﻿
+@{
+    string apiKey = System.Configuration.ConfigurationManager.AppSettings["ApiKey"];
+    string apiUrl = System.Configuration.ConfigurationManager.AppSettings["ApiUrl"];
+    string name = MvcMovieDb.Classes.Utility.UrlParamterToString(Request.QueryString["name"]);
+
+    ViewBag.Title = name;
+}
+
+<script type="text/javascript">
+    var movieId = "@ViewBag.Id";
+
+    function searchMovie() {
+        var pageUrl = "@apiUrl" + "person/" + movieId + "?api_key=@apiKey";
+   
+        $.ajax({
+            type: "GET",
+            url: pageUrl,
+            async: true,
+            dataType: "json",
+            success: function (data) {
+                //alert(data.title);
+                var also_known_as = "";
+                for (var i = 0; i < data.also_known_as.length; i++) {
+                    also_known_as += data.also_known_as[i] + " ";
+                }
+
+                $(".section-summary-right").append("also_known_as : " + also_known_as + "<br />");
+                $(".section-summary-right").append("biography : " + data.biography + "<br />");
+                $(".section-summary-right").append("birthday : " + data.birthday + "<br />");
+                $(".section-summary-right").append("place_of_birth : " + data.place_of_birth + "<br />");
+
+                $(".section-summary-left").append("<img src=\"http://image.tmdb.org/t/p/w185" + data.profile_path + "\"  alt=\"\" /><br />");
+
+
+            },
+            error: function (data) {
+
+                alert(data.responseText);
+            }
+        });
+    }
+
+    function getMovieCredits() {
+       // var pageUrl = "http://api.themoviedb.org/3/person/" + movieId + "/movie_credits?api_key=f426b18a0eba4f52fc15979dddcd742c";
+        var pageUrl = "@apiUrl" + "person/" + movieId + "/movie_credits?api_key=@apiKey";
+
+        $.ajax({
+            type: "GET",
+            url: pageUrl,
+            async: true,
+            dataType: "json",
+            success: function (data) {
+
+                var cast = "";
+                var castRows = "";
+
+                for (var i = 0; i < data.cast.length; i++) {
+                    
+                    var url = "@Url.Content("~/Movie/Details/")" + data.cast[i].id;
+                    var movieTitle = data.cast[i].title.replace(/\ /g, "_");
+
+                    url += "?title=" + movieTitle;
+
+                    castRows += "<tr><td class=\"cast-row-poster\"><img src=\"http://image.tmdb.org/t/p/w45" + data.cast[i].poster_path + "\"  />";
+                    castRows += "</td><td class=\"cast-row-character\">";
+                    castRows += "<a href=\"" + url + "\" >" + data.cast[i].title + "</a>(" + data.cast[i].release_date + ") <br /><i>as " + data.cast[i].character + "</li>";
+                    castRows += "</td></tr>";
+
+                }
+
+                var castTable = "<table class=\"cast-table\">" + castRows + "</table>";
+                $("#divMovieCredits").append(castTable);
+
+
+            },
+            error: function (data) {
+
+                alert(data.responseText);
+            }
+        });
+    }
+
+    function getTvCredits() {
+        //var pageUrl = "http://api.themoviedb.org/3/person/" + movieId + "/tv_credits?api_key=f426b18a0eba4f52fc15979dddcd742c";
+        var pageUrl = "@apiUrl" + "person/" + movieId + "/tv_credits?api_key=@apiKey";
+
+        $.ajax({
+            type: "GET",
+            url: pageUrl,
+            async: true,
+            dataType: "json",
+            success: function (data) {
+
+                var cast = "";
+                var castRows = "";
+
+                for (var i = 0; i < data.cast.length; i++) {
+                    var url = "@Url.Content("~/Tv/Details/")" + data.cast[i].id;
+                    var movieTitle = data.cast[i].name.replace(/\ /g, "_");
+
+                    url += "?title=" + movieTitle;
+
+                    castRows += "<tr><td class=\"cast-row-poster\"><img src=\"http://image.tmdb.org/t/p/w45" + data.cast[i].poster_path + "\" />";
+                    castRows += "</td><td class=\"cast-row-character\">";
+                    castRows += "<a href=\"" + url + "\">" + data.cast[i].name + "</a>(" + data.cast[i].first_air_date + ") <br /><i>as " + data.cast[i].character + "</li>";
+                    castRows += "</td></tr>";
+
+                }
+
+                var castTable = "<table class=\"cast-table\">" + castRows + "</table>";
+                $("#divTvCredits").append(castTable);
+
+
+            },
+            error: function (data) {
+
+                alert(data.responseText);
+            }
+        });
+    }
+
+    $(document).ready(function () {
+
+        ///  $("#btnSearch").click(function () {
+        searchMovie();
+        getMovieCredits();
+        getTvCredits();
+        ///  });
+
+
+
+    });
+
+</script>
+
+
+<div style="width:600px;">
+    <div class="section-summary-title" ><h2>@name</h2></div>
+    <div class="section-summary-left" ></div>
+    <div class="section-summary-right" ></div>
+    <hr style="width:100%;float:left;" />
+    <div id="divDetails" style="width:100%; float:left;">Cast</div>
+</div>
+
+<div id="divActorDetails"></div>
+<div>
+    <div id="divMovieCredits" style="float:left">
+        Movie Credits
+    </div>
+
+    <div id="divTvCredits" style="float:left">Tv Credits</div>
+</div>

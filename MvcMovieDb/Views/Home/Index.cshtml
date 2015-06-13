@@ -1,0 +1,93 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+
+    string apiKey = System.Configuration.ConfigurationManager.AppSettings["ApiKey"];
+    string apiUrl = System.Configuration.ConfigurationManager.AppSettings["ApiUrl"];
+}
+<style>
+    .movie-table {
+        width: 300px;
+    }
+
+    .movie-row-poster {
+        width: 60px;
+    }
+
+        .movie-row-poster img {
+            width: 50px;
+            height: 75px;
+        }
+
+    .movie-row-title {
+        width: 240px;
+    }
+</style>
+<script type="text/javascript">
+    function getTopTenNowPlayingMovies() {
+
+        var pageUrl = "@apiUrl" + "movie/now_playing?api_key=@apiKey";
+    
+
+        $.ajax({
+            type: "GET",
+            url: pageUrl,
+            async: true,
+            dataType: "json",
+            success: function (data) {
+          
+                var movieList = "";
+                var movieRows = "";
+                //Get 10 only instead of data.results.length
+                for (var i = 0; i < 10 ; i++) {
+                    var url = "@Url.Content("~/Movie/Details/")" + data.results[i].id;
+                    var movieTitle = data.results[i].title.replace(/\ /g, "_");
+
+                    url += "?title=" + movieTitle;
+                    // movieList += "<a href=\"" + url + "\">" + data.results[i].original_title + data.results[i].release_date + "</a>";
+                    movieRows += "<div style=\"width:183px; height:183px; text-align:center; float:left;\"><img src=\"http://image.tmdb.org/t/p/w92" + data.results[i].poster_path + "\" />";
+                 //   alert(data.results[i].title);
+                    movieRows += "<br /><a href=\"" + url + "\">" + data.results[i].title + "</a>";
+                    movieRows += "</div>";
+                }
+
+
+               // var movieTable = "<table class=\"movie-table\">" + movieRows + "</table>";
+
+                //$("#divMovieList").html(movieList);
+                $("#divMovieList").append(movieRows);
+
+            },
+            error: function (data) {
+
+                alert(data.responseText);
+            }
+        });
+    }
+
+   
+
+    $(document).ready(function () {    
+            getTopTenNowPlayingMovies();   
+
+    });
+
+</script>
+
+
+<hgroup class="title">
+    @*  <h1>@ViewBag.Title.</h1>
+    <h2>@ViewBag.Message</h2>*@
+</hgroup>
+
+
+
+<div>
+    <div>
+        <div style="float:left; width:50%">Now Playing</div>    
+        <div style="float:left; width:50%; text-align:right;">@Html.ActionLink("See more movies now playing", "Now_Playing", "Movie")</div>
+        </div>
+    <hr />
+    <div id="divMovieList" style="float: left"></div>
+
+    <div id="divTvList" style="float: left">Tv List</div>
+</div>

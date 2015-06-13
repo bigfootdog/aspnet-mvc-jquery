@@ -1,0 +1,64 @@
+﻿.poster-image {
+    width:20%;
+    height: 20%;
+
+}
+
+.movie-table {
+    width: 300px;
+}
+
+.movie-row-poster {
+    width: 60px;
+}
+
+    /*.movie-row-poster img {
+        width: 50px;
+        height: 75px;
+    }*/
+
+.movie-row-title {
+    width: 240px;
+}
+
+
+.cast-table {
+    width: 400px;
+}
+
+.movie-table-upcoming {
+        width: 600px;
+}
+
+.cast-row-poster {
+    width: 60px;
+}
+
+    /*.cast-row-poster img {
+        width: 50px;
+        height: 75px;
+    }*/
+
+.cast-row-character {
+    width: 340px;
+}
+
+
+
+
+.section-summary-title {
+    width: 100%;
+}
+.section-summary-left {
+    width: 200px;
+    float:left;
+}
+
+/*.section-summary-left img {
+    width: 80%;
+    
+}*/
+.section-summary-right {
+    width: 400px;
+    float:left;
+}

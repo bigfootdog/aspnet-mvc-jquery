@@ -1,0 +1,63 @@
+﻿@{
+    string apiKey = System.Configuration.ConfigurationManager.AppSettings["ApiKey"];
+    string apiUrl = System.Configuration.ConfigurationManager.AppSettings["ApiUrl"];
+  //  string name = MvcMovieDb.Classes.Utility.UrlParamterToString(Request.QueryString["name"]);
+
+    ViewBag.Title = "Upcoming movies";
+}
+
+<script type="text/javascript">
+   
+    function getUpComingMovies() {
+       // var pageUrl = "http://api.themoviedb.org/3/movie/upcoming/" + movieId + "/movie_credits?api_key=f426b18a0eba4f52fc15979dddcd742c";
+        var pageUrl = "@apiUrl" + "movie/upcoming?api_key=@apiKey";
+    
+        $.ajax({
+            type: "GET",
+            url: pageUrl,
+            async: true,
+            dataType: "json",
+            success: function (data) {
+          
+                  var movieRows = "";
+                
+                for (var i = 0; i < data.results.length; i++) {
+                  
+                    var url = "@Url.Content("~/Movie/Details/")" + data.results[i].id;
+                    var movieTitle = data.results[i].title.replace(/\ /g, "_");
+                  
+                    url += "?title=" + movieTitle;
+
+                    movieRows += "<tr><td class=\"movie-row-poster\"><img src=\"http://image.tmdb.org/t/p/w92" + data.results[i].poster_path + "\"  />";
+                    movieRows += "</td><td class=\"movie-row-character\">";
+                    movieRows += "<a href=\"" + url + "\" >" + data.results[i].title + "</a>(" + data.results[i].release_date + ") <br />" + data.results[i].overview;
+                    movieRows += "</td></tr>";
+
+                }
+
+                var castTable = "<table class=\"movie-table-upcoming\">" + movieRows + "</table>";
+                $("#divMovieCredits").append(castTable);
+
+
+            },
+            error: function (data) {
+
+                alert(data.responseText);
+            }
+        });
+    }
+
+  
+
+    $(document).ready(function () {
+        getUpComingMovies();
+    });
+
+</script>
+
+<div>
+    <div id="divMovieCredits" style="float:left">
+        Movie Credits
+    </div>
+
+</div>
